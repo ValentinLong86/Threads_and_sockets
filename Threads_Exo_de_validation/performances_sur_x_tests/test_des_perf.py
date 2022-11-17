@@ -3,8 +3,8 @@ import threading
 import requests
 import concurrent.futures
 import multiprocessing
-import statistics
 import sys
+from statistics import mean
 
 img_urls = [
     "https://pixabay.com/get/ged6acbd44e74bdd933c8c7af8e11440d90d6bf0468ffcb42072df0350131a9fb4410923d8884fe99728f29c3c21bb720df88e7bd01aff81e244aaa1dcd0682999326dcf0e865e3e4b3425a94b3193fdf_1920.jpg",
@@ -20,34 +20,34 @@ def download_image(img_url):
 
 def using_Treads() -> float:
     start_thread_counter = time.perf_counter()
+    Thread_list = []
+    
+    for i in range(3):
+        Thread_list.append(threading.Thread(target=download_image, args=[img_urls[i]]))
 
-    d1 = threading.Thread(target=download_image, args=[img_urls[0]])
-    d2 = threading.Thread(target=download_image, args=[img_urls[1]])
-    d3 = threading.Thread(target=download_image, args=[img_urls[2]])
+    for i in range(len(Thread_list)):
+        Thread_list[i].start()
 
-    d1.start()
-    d2.start()
-    d3.start()
-    d1.join()
-    d2.join()
-    d3.join()
+    for i in range(len(Thread_list)):
+        Thread_list[i].join()
 
     end_thread_counter = time.perf_counter()
     return round(end_thread_counter - start_thread_counter, 2)
 
 def using_Multiprocessing() -> float:
     start_multiprocess_counter = time.perf_counter()
+    Process_list = []
+    
+    for i in range(3):
+        Process_list.append(multiprocessing.Process(target=download_image, args=[img_urls[i]]))
+    
+    for i in range(len(Process_list)):
+        Process_list[i].start()
 
-    p1 = multiprocessing.Process(target=download_image, args=[img_urls[0]])
-    p2 = multiprocessing.Process(target=download_image, args=[img_urls[1]])
-    p3 = multiprocessing.Process(target=download_image, args=[img_urls[2]])
+    for i in range(len(Process_list)):
+        Process_list[i].join()
 
-    p1.start()
-    p2.start()
-    p3.start()
-    p1.join()
-    p2.join()
-    p3.join()
+    end_thread_counter = time.perf_counter()
 
     end_multiprocess_counter = time.perf_counter()
     return round(end_multiprocess_counter - start_multiprocess_counter, 2) 
@@ -75,12 +75,11 @@ def test_all_methods(numberOfTest:int = 1):
         multiprocessing_result_list.append(multiprocessing_result)
         pool_result_list.append(pool_result)
 
-    meanThread = statistics.mean(thread_result_list)
-    meanMultiprocessing = statistics.mean(multiprocessing_result_list)
-    meanPool = statistics.mean(pool_result_list)
+    meanThread = mean(thread_result_list)
+    meanMultiprocessing = mean(multiprocessing_result_list)
+    meanPool = mean(pool_result_list)
 
     return meanThread, meanMultiprocessing, meanPool
-
 
 if __name__ == "__main__":
     try:
