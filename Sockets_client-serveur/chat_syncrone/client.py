@@ -6,8 +6,13 @@ port = 7777
 
 def socket_client(message: str) -> str:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-        client.connect((host, port))
-        client.sendall(message.encode("utf-8"))
+        try:
+            client.connect((host, port))
+            client.sendall(message.encode("utf-8"))
+        except ConnectionRefusedError:
+            return -1
+        except:
+            return -2
 
         if message == "bye" or message == "arret":
             client.close()
@@ -22,4 +27,10 @@ def socket_client(message: str) -> str:
 if __name__ == "__main__":
     while True:
         message = input("SEND> ")
-        print("RECEIVE:", socket_client(message))
+
+        if socket_client(message) == -1:
+            print("Le serveur n'accepte pas la connexion ou est indisponible")
+        elif socket_client(message) == -2:
+            print("Erreur de communication avec le serveur ")
+        else:
+            print("RECEIVE:", socket_client(message))
