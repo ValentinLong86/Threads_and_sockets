@@ -14,22 +14,20 @@ def download_image(img_url):
     img_name = img_url.split('/')[4]
     with open(img_name, 'wb') as img_file:
         img_file.write(img_bytes)
-        print(f"{img_name} was downloaded")
 
 if __name__ == "__main__":
 
     start = time.perf_counter()
+    threads_list = []
 
-    d1 = threading.Thread(target=download_image, args=[img_urls[0]])
-    d2 = threading.Thread(target=download_image, args=[img_urls[1]])
-    d3 = threading.Thread(target=download_image, args=[img_urls[2]])
+    for i in range(3):
+        threads_list.append(threading.Thread(target=download_image, args=[img_urls[i]]))
 
-    d1.start()
-    d2.start()
-    d3.start()
-    d1.join()
-    d2.join()
-    d3.join()
+    for i in range(len(threads_list)):
+        threads_list[i].start()
+
+    for i in range(len(threads_list)):
+        threads_list[i].join()
 
     end = time.perf_counter()
 

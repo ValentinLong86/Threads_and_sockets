@@ -13,7 +13,6 @@ def download_image(img_url):
     img_name = img_url.split('/')[4]
     with open(img_name, 'wb') as img_file:
         img_file.write(img_bytes)
-        print(f"{img_name} was downloaded")
 
 start = time.perf_counter()
 with concurrent.futures.ThreadPoolExecutor() as executor:
