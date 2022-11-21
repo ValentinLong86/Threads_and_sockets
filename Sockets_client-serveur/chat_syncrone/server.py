@@ -11,16 +11,20 @@ def socket_server():
 
         while True:
             conn, address = server.accept()
+            while True:
+                buffer = conn.recv(1024)
+                message = buffer.decode("utf-8")
 
-            with conn:
-                buff = conn.recv(1024)
-                message = buff.decode("utf-8")
-                
+                print("RECEIVE:", message)
+                    
                 if message == "arret":
                     server.close()
                     sys.exit(0)
+                elif message == "bye":
+                    break
                 
-                conn.sendall(message.encode("utf-8"))
+                send_message = input("SERVER> ")
+                conn.send(send_message.encode("utf-8"))
 
 
 if __name__ == "__main__":
