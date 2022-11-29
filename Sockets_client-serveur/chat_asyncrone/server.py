@@ -1,46 +1,49 @@
 import socket
-import sys
 import threading
 
 host = "127.0.0.1"
 port = 7777
 
-conn = ""
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind((host, port))
+server.listen(1)
+conn, address = server.accept()
 
-def socket_server():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-        server.bind((host, port))
-        server.listen(1)
-        message = ""
+receive_message = ""
 
-        while message != "arret":
-            message = ""
+def receive():
+    global receive_message
+    global conn
+
+    while receive_message != "arret":
+        receive_message = ""
+        buffer = conn.recv(1024)
+        receive_message = buffer.decode("utf-8")
+
+        if receive_message == "arret":
+            conn.send(receive_message.encode("utf-8"))
+        elif receive_message == "bye":
+            conn.send(receive_message.encode("utf-8"))
             conn, address = server.accept()
-            while message != "bye" and message != "arret":
-                buffer = conn.recv(1024)
-                message = buffer.decode("utf-8")
+        else:
+            print("RECEIVE:", receive_message)
 
-                print("RECEIVE:", message)
-        server.close()
+def send():
+    global receive_message
 
-def send_message():
-    send_message = input("SERVER> ")
-    conn.send(send_message.encode("utf-8"))
-
-
+    while receive_message != "arret":
+        message = input("SEND> ")
+        conn.send(message.encode("utf-8"))
+    
 
 if __name__ == "__main__":
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-        server.bind((host, port))
-        server.listen(1)
-        message = ""
+    t1 = threading.Thread(target=receive)
+    t2 = threading.Thread(target=send)
 
-        while message != "arret":
-            message = ""
-            conn, address = server.accept()
-            while message != "bye" and message != "arret":
-                buffer = conn.recv(1024)
-                message = buffer.decode("utf-8")
+    t1.start()
+    t2.start()
 
-                print("RECEIVE:", message)
-        server.close()
+    t1.join()
+    t2.join()
+
+    server.close()

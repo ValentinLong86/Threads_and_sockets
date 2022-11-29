@@ -14,8 +14,8 @@ def socket_server():
             conn, address = server.accept()
             
             while receive_message != "arret" and receive_message != "bye":
-                buff = conn.recv(1024)
-                receive_message = buff.decode("utf-8")
+                buffer = conn.recv(1024)
+                receive_message = buffer.decode("utf-8")
 
                 if receive_message == "arret" or receive_message == "bye":
                     conn.send(receive_message.encode("utf-8"))
